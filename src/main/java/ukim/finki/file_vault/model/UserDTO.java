@@ -16,13 +16,13 @@ public class UserDTO {
     private String name;
     @NotBlank(message = "Please enter your surname.")
     private String surname;
-    @NotBlank
+    @NotBlank(message = "Please enter your email.")
     @Email(message = "Please enter a valid email address.")
     private String email;
-    @NotBlank
+    @NotBlank(message = "Please enter your username.")
     @UniqueUsername
     private String username;
-    @NotBlank
+    @NotBlank(message = "Please enter your password.")
     @PasswordComplex
     private String password;
 }

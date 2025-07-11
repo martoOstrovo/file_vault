@@ -33,11 +33,13 @@ public class SecurityConfig {
         )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/landing_page", true)
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true")
                         .permitAll()
                 )
                 .exceptionHandling(e -> e
-                        .accessDeniedPage("/access_denied"))
+                        .accessDeniedPage("/access-denied"))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/home"));

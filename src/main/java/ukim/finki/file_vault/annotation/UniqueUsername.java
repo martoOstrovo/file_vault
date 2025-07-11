@@ -2,12 +2,13 @@ package ukim.finki.file_vault.annotation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+import ukim.finki.file_vault.annotation.validator.UniqueUsernameValidator;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Constraint(validatedBy = {})
+@Constraint(validatedBy = UniqueUsernameValidator.class)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueUsername {

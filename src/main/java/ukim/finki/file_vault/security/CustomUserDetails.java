@@ -5,8 +5,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import ukim.finki.file_vault.model.User;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
+
+@SuppressWarnings("LombokGetterMayBeUsed")
 public class CustomUserDetails implements UserDetails {
     private final User user;
 
@@ -20,9 +22,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream()
+        return List.copyOf(user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
-                .collect(Collectors.toList());
+                .toList());
     }
 
     @Override

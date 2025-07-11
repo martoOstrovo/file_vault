@@ -7,10 +7,10 @@ import ukim.finki.file_vault.annotation.UniqueUsername;
 import ukim.finki.file_vault.repository.UserRepository;
 
 @Component
-public class UsernameExistsValidator implements ConstraintValidator<UniqueUsername, String> {
+public class UniqueUsernameValidator implements ConstraintValidator<UniqueUsername, String> {
     private final UserRepository userRepository;
 
-    public UsernameExistsValidator(UserRepository userRepository) {
+    public UniqueUsernameValidator(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

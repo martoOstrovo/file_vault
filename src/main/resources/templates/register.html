@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <!--ZA TEO, <span> gi sodrzat error porakite, ako stavas css na niv dodaj im samo klasa ne gi menjaj ke go ujebes backendot preku anotacii rabotat-->
+</head>
+<body>
+<a th:href="@{/home}">Home</a>
+<h1>Register</h1>
+<form action="#" th:action="@{/register}" th:object="${userDTO}" method="POST">
+
+    <label for="name">Name: </label>
+    <input id="name" name="name" type="text" th:field="*{name}"/>
+    <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+    <br><br>
+
+    <label for="surname">Surname: </label>
+    <input id="surname" name="surname" type="text" th:field="*{surname}"/>
+    <span th:if="${#fields.hasErrors('surname')}" th:errors="*{surname}"></span>
+    <br><br>
+
+    <label for="email">Email: </label>
+    <input id="email" name="email" type="email" th:field="*{email}"/>
+    <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+    <br><br>
+
+    <label for="username">Username: </label>
+    <input id="username" name="username" type="text" th:field="*{username}"/>
+    <span th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+    <br><br>
+
+    <label for="password">Password: </label>
+    <input id="password" name="password" type="password" th:field="*{password}"/>
+    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></span>
+    <br><br>
+
+    <input type="submit" value="Register"/>
+</form>
+</body>
+</html>

@@ -3,7 +3,8 @@ package ukim.finki.file_vault.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -12,9 +13,10 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ID;
+    @Column(unique = true)
     private String roleName;
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "roles")
-    private Set<User> users;
+    private List<User> users = new ArrayList<>();
 
     public Role(String roleName) {
         this.roleName = roleName;
