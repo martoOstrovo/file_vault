@@ -7,7 +7,6 @@ import ukim.finki.file_vault.model.User;
 import java.util.Collection;
 import java.util.List;
 
-
 @SuppressWarnings("LombokGetterMayBeUsed")
 public class CustomUserDetails implements UserDetails {
     private final User user;

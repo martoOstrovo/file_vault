@@ -3,7 +3,6 @@ package ukim.finki.file_vault.annotation;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import ukim.finki.file_vault.annotation.validator.PasswordComplexValidator;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
