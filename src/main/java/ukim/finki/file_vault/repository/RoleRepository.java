@@ -1,0 +1,11 @@
+package ukim.finki.file_vault.repository;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import ukim.finki.file_vault.model.Role;
+import java.util.Optional;
+
+@Repository
+public interface RoleRepository extends JpaRepository<Role, Long> {
+    Optional<Role> findByRoleName(String roleName);
+}
