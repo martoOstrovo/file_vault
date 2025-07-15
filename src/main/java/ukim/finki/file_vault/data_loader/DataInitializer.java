@@ -1,27 +1,51 @@
 package ukim.finki.file_vault.data_loader;
 
+import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ukim.finki.file_vault.model.Role;
+import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.repository.RoleRepository;
+import ukim.finki.file_vault.repository.UserRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    public DataInitializer(RoleRepository roleRepository) {
+    public DataInitializer(RoleRepository roleRepository,  PasswordEncoder passwordEncoder,  UserRepository userRepository) {
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
-        createAndSave("ROLE_USER");
-        createAndSave("ROLE_MODERATOR");
-        createAndSave("ROLE_ADMIN");
-        createAndSave("ROLE_UNCONFIRMED");
+        createAndSaveRole("ROLE_USER");
+        createAndSaveRole("ROLE_MODERATOR");
+        createAndSaveRole("ROLE_ADMIN");
+        createAndSaveRole("ROLE_UNCONFIRMED");
+        createAndSaveAdmin(new User());
     }
 
-    private void createAndSave(String roleName) {
+    private void createAndSaveAdmin(User admin) {
+        if (userRepository.findByUsername("admin").isPresent()) return;
+        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setEnabled(true);
+        admin.setName("admin");
+        admin.setEmail("temp");
+        admin.setSurname("admin");
+        admin.setUsername("admin");
+        admin.getRoles().add(roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow(() -> new RuntimeException("temp exception for finding role")));
+        admin.getRoles().add(roleRepository.findByRoleName("ROLE_MODERATOR").orElseThrow(() -> new RuntimeException("temp exception for finding role")));
+        admin.getRoles().add(roleRepository.findByRoleName("ROLE_USER").orElseThrow(() -> new RuntimeException("temp exception for finding role")));
+        userRepository.save(admin);
+    }
+
+    private void createAndSaveRole(String roleName) {
         if (roleRepository.findByRoleName(roleName).isEmpty()) {
             Role role = new Role(roleName);
             roleRepository.save(role);

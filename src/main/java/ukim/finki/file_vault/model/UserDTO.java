@@ -17,6 +17,7 @@ public class UserDTO {
     @NotBlank(message = "Please enter your surname.")
     private String surname;
     @NotBlank(message = "Please enter your email.")
+    //TODO add email validator this does not work like i thought it would
     @Email(message = "Please enter a valid email address.")
     private String email;
     @NotBlank(message = "Please enter your username.")
