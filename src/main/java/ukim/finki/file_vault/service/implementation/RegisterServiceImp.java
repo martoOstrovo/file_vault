@@ -5,20 +5,34 @@ import org.springframework.stereotype.Service;
 import ukim.finki.file_vault.model.Role;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.UserDTO;
+import ukim.finki.file_vault.model.VerificationToken;
 import ukim.finki.file_vault.repository.RoleRepository;
 import ukim.finki.file_vault.repository.UserRepository;
+import ukim.finki.file_vault.service.MailSenderService;
 import ukim.finki.file_vault.service.RegisterService;
+import ukim.finki.file_vault.service.VerificationService;
+import java.time.LocalDateTime;
 
+//TODO add good exception handling and custom exceptions
 @Service
 public class RegisterServiceImp implements RegisterService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final MailSenderService mailSenderService;
+    private final VerificationService verificationService;
 
-    public RegisterServiceImp(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
+    public RegisterServiceImp(UserRepository userRepository,
+                              PasswordEncoder passwordEncoder,
+                              RoleRepository roleRepository,
+                              MailSenderService mailSender,
+                              VerificationService verificationService) {
+
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mailSenderService = mailSender;
+        this.verificationService = verificationService;
     }
 
     public void registerUser(UserDTO userDTO) {
@@ -31,5 +45,24 @@ public class RegisterServiceImp implements RegisterService {
         Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow(() -> new RuntimeException("Default Role Not Found"));
         user.getRoles().add(role);
         userRepository.save(user);
+        sendVerificationEmail(user);
     }
+
+    private void sendVerificationEmail(User user) {
+        VerificationToken verificationToken = verificationService.createVerificationToken(user);
+        String body = "please visit the following link to activate your account: http://localhost:8080/verify?token=" + verificationToken.getToken();
+        mailSenderService.sendActivationCode(user.getEmail(), "Account Verification Token", body);
+    }
+
+    public void confirmAccount(String token) {
+        VerificationToken verificationToken = verificationService.getVerificationToken(token);
+        if (verificationToken == null) throw new RuntimeException("Verification Token Not Found");
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now()))
+            throw new RuntimeException("Verification Token Expired");
+        User user = verificationToken.getUser();
+        user.setEnabled(true);
+        verificationService.deleteVerificationToken(verificationToken);
+        userRepository.save(user);
+    }
+
 }

@@ -28,7 +28,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/home", "/login", "/register", "/", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/home", "/login", "/register", "/verify","/", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
         )
                 .formLogin(form -> form
@@ -39,7 +39,8 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .exceptionHandling(e -> e
-                        .accessDeniedPage("/access-denied"))
+                        .accessDeniedPage("/access-denied")
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/home"));
