@@ -3,7 +3,6 @@ package ukim.finki.file_vault.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,12 +14,10 @@ public class VerificationToken {
     private Long ID;
     private String token;
     private LocalDateTime expiryDate;
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "verificationToken")
     private User user;
 
-    public VerificationToken(String token, User user) {
+    public VerificationToken(String token) {
         this.token = token;
-        this.expiryDate =  LocalDateTime.now().plusSeconds(10);
-        this.user = user;
     }
 }
