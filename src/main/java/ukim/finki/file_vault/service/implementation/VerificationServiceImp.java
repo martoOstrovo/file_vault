@@ -20,7 +20,10 @@ public class VerificationServiceImp implements VerificationService {
 
     public VerificationToken createVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
-        VerificationToken verificationToken = new VerificationToken(token, user);
+        VerificationToken verificationToken = new VerificationToken(token);
+        verificationToken.setUser(user);
+        verificationToken.setExpiryDate(LocalDateTime.now().plusDays(1));
+        user.setVerificationToken(verificationToken);
         return verificationTokenRepository.save(verificationToken);
     }
 
