@@ -27,9 +27,10 @@ public class AccountCleanupTask {
         for (VerificationToken token : expiredTokens) {
             User user = token.getUser();
             token.setUser(null);
-            verificationService.saveVerificationToken(token);
-            if (user != null) userService.deleteUser(user);
-            verificationService.deleteVerificationToken(token);
+            if (user != null && !user.isEnabled()) {
+                user.setVerificationToken(null);
+                userService.deleteUser(user);
+            }
         }
     }
 }

@@ -5,7 +5,6 @@ import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.VerificationToken;
 import ukim.finki.file_vault.repository.VerificationTokenRepository;
 import ukim.finki.file_vault.service.VerificationService;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
