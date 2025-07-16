@@ -15,12 +15,12 @@ public class VerificationToken {
     private Long ID;
     private String token;
     private LocalDateTime expiryDate;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     private User user;
 
     public VerificationToken(String token, User user) {
         this.token = token;
-        this.expiryDate =  LocalDateTime.now().plusDays(1);
+        this.expiryDate =  LocalDateTime.now().plusSeconds(10);
         this.user = user;
     }
 }

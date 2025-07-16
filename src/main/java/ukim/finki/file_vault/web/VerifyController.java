@@ -18,6 +18,6 @@ public class VerifyController {
     @GetMapping
     public String showVerify(@RequestParam String token) {
         registerService.confirmAccount(token);
-        return "verified";
+        return "activated";
     }
 }

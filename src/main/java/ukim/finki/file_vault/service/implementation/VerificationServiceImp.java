@@ -5,6 +5,9 @@ import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.VerificationToken;
 import ukim.finki.file_vault.repository.VerificationTokenRepository;
 import ukim.finki.file_vault.service.VerificationService;
+
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,4 +31,15 @@ public class VerificationServiceImp implements VerificationService {
     public void deleteVerificationToken(VerificationToken verificationToken) {
         verificationTokenRepository.delete(verificationToken);
     }
+
+    @Override
+    public List<VerificationToken> getAllExpiredVerificationTokens(LocalDateTime currentDateTime) {
+        return verificationTokenRepository.findAllByExpiryDateBefore(currentDateTime);
+    }
+
+    @Override
+    public void saveVerificationToken(VerificationToken verificationToken) {
+        verificationTokenRepository.save(verificationToken);
+    }
+
 }
