@@ -17,4 +17,8 @@ public class UserServiceImp implements UserService {
     public void deleteUser(User user) {
         userRepository.delete(user);
     }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
 }

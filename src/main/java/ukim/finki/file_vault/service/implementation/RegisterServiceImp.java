@@ -60,6 +60,7 @@ public class RegisterServiceImp implements RegisterService {
         if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now()))
             throw new RuntimeException("Verification Token Expired");
         User user = verificationToken.getUser();
+        user.setVerificationToken(null);
         user.setEnabled(true);
         verificationService.deleteVerificationToken(verificationToken);
         userRepository.save(user);
