@@ -10,7 +10,7 @@ import ukim.finki.file_vault.repository.RoleRepository;
 import ukim.finki.file_vault.repository.UserRepository;
 import ukim.finki.file_vault.service.MailSenderService;
 import ukim.finki.file_vault.service.RegisterService;
-import ukim.finki.file_vault.service.VerificationService;
+import ukim.finki.file_vault.service.VerificationTokenService;
 import java.time.LocalDateTime;
 
 //TODO add good exception handling and custom exceptions
@@ -20,13 +20,13 @@ public class RegisterServiceImp implements RegisterService {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final MailSenderService mailSenderService;
-    private final VerificationService verificationService;
+    private final VerificationTokenService verificationService;
 
     public RegisterServiceImp(UserRepository userRepository,
                               PasswordEncoder passwordEncoder,
                               RoleRepository roleRepository,
                               MailSenderService mailSender,
-                              VerificationService verificationService) {
+                              VerificationTokenService verificationService) {
 
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -62,7 +62,7 @@ public class RegisterServiceImp implements RegisterService {
         User user = verificationToken.getUser();
         user.setVerificationToken(null);
         user.setEnabled(true);
-        verificationService.deleteVerificationToken(verificationToken);
+//        verificationService.deleteVerificationToken(verificationToken);
         userRepository.save(user);
     }
 

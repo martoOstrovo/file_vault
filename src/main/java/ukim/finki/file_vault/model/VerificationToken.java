@@ -20,4 +20,5 @@ public class VerificationToken {
     public VerificationToken(String token) {
         this.token = token;
     }
+
 }

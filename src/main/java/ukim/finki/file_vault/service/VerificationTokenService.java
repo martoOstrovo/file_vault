@@ -6,7 +6,7 @@ import ukim.finki.file_vault.model.VerificationToken;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface VerificationService {
+public interface VerificationTokenService {
     VerificationToken createVerificationToken(User user);
     VerificationToken getVerificationToken(String token);
     void deleteVerificationToken(VerificationToken verificationToken);

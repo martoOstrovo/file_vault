@@ -29,9 +29,14 @@ public class User {
     )
     private List<Role> roles = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "verification_token_id")
     private VerificationToken verificationToken;
+
+    public void addVerificationToken(VerificationToken verificationToken) {
+        this.verificationToken = verificationToken;
+        verificationToken.setUser(this);
+    }
 
     @Override
     public String toString() {
