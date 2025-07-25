@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>2FA</title>
+</head>
+<body>
+    <div th:if="${param.error}">
+        <p>Incorrect code!</p>
+    </div>
+    <form th:action="@{/2FA}" method="post">
+        <label for="verificationToken">Enter your verification code</label>
+        <input type="text" name="verificationToken" id="verificationToken">
+
+        <input type="submit" value="Verify">
+    </form>
+
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Exit">
+    </form>
+</body>
+</html>

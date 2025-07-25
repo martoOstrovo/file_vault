@@ -23,7 +23,7 @@ public class VerificationTokenServiceImp implements VerificationTokenService {
     public VerificationToken createVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
         VerificationToken verificationToken = new VerificationToken(token);
-        verificationToken.setExpiryDate(LocalDateTime.now().plusSeconds(30));
+        verificationToken.setExpiryDate(LocalDateTime.now().plusDays(1));
         user.addVerificationToken(verificationToken);
         userRepository.save(user);
         return verificationToken;

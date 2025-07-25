@@ -15,6 +15,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public void deleteUser(User user) {
+        user.setVerificationToken(null);
         userRepository.delete(user);
     }
 

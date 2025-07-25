@@ -14,6 +14,7 @@ import ukim.finki.file_vault.model.Role;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.repository.RoleRepository;
 import ukim.finki.file_vault.service.SecurityUtils;
+import ukim.finki.file_vault.service.TwoFactorTokenService;
 import ukim.finki.file_vault.service.UserService;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,24 +24,36 @@ import java.util.List;
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final RoleRepository roleRepository;
     private final UserService userService;
+    private final TwoFactorTokenService twoFactorTokenService;
 
-    public  CustomAuthenticationSuccessHandler(RoleRepository roleRepository, UserService userService) {
+    public  CustomAuthenticationSuccessHandler(RoleRepository roleRepository, UserService userService,  TwoFactorTokenService twoFactorTokenService) {
         this.roleRepository = roleRepository;
         this.userService = userService;
+        this.twoFactorTokenService = twoFactorTokenService;
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         User user = SecurityUtils.getCurrentUser();
-        Role unverifiedRole = roleRepository.findByRoleName("ROLE_UNCONFIRMED").orElseThrow(() -> new RuntimeException("Error in CustomAuthenticationSuccessHandler ROLE search."));
+        Role roleUnconfirmed = roleRepository.findByRoleName("ROLE_UNCONFIRMED").orElseThrow(() ->
+                new RuntimeException("Error in CustomAuthenticationSuccessHandler ROLE search."));
+
         assert user != null;
-        user.getRoles().add(unverifiedRole);
-        userService.saveUser(user);
+        if(user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(roleUnconfirmed.getRoleName()))) {
+            user.getRoles().add(roleUnconfirmed);
+            userService.saveUser(user);
+        }
+
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authentication.getAuthorities());
-        grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_UNCONFIRMED"));
+
+        if(grantedAuthorities.stream().noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(roleUnconfirmed.getRoleName()))) {
+            grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_UNCONFIRMED"));
+        }
+
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(customUserDetails, user.getPassword(), grantedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(token);
+        twoFactorTokenService.sendTwoFactorTokenEmail(user);
         response.sendRedirect("/welcome");
     }
 }

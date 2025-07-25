@@ -14,7 +14,7 @@ public class MailSenderImp implements MailSenderService {
     }
 
     @Override
-    public void sendActivationCode(String to, String subject, String body) {
+    public void sendMail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom("file_vault@gmail.com");
         message.setTo(to);
