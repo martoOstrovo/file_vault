@@ -19,8 +19,8 @@ public class AccountCleanupTask {
         this.userService = userService;
     }
 
-    //@Scheduled(cron = "* * 12 * * 1-7")
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "* * 12 * * 1-7")
+    //@Scheduled(cron = "*/10 * * * * *")
     @Transactional
     public void deleteExpiredAccounts() {
         List<VerificationToken> expiredTokens = verificationService.getAllExpiredVerificationTokens(LocalDateTime.now());

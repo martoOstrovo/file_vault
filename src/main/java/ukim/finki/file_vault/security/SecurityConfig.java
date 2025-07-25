@@ -10,16 +10,22 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final TwoFactorAuthFilter twoFactorAuthFilter;
 
-    public SecurityConfig(UserDetailsService userDetailsService,  CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler) {
+    public SecurityConfig(UserDetailsService userDetailsService,
+                          CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler,
+                          TwoFactorAuthFilter twoFactorAuthFilter) {
+
         this.userDetailsService = userDetailsService;
         this.customAuthenticationSuccessHandler = customAuthenticationSuccessHandler;
+        this.twoFactorAuthFilter = twoFactorAuthFilter;
     }
 
     @Bean
@@ -30,9 +36,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/home", "/login", "/register", "/verify","/", "/css/**", "/js/**").permitAll()
-                .anyRequest().authenticated()
+                        .requestMatchers("/home", "/login", "/register", "/verify","/", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/2FA/**").hasRole("UNCONFIRMED")
+                        .anyRequest().authenticated()
         )
+                .addFilterBefore(twoFactorAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")

@@ -33,9 +33,18 @@ public class User {
     @JoinColumn(name = "verification_token_id")
     private VerificationToken verificationToken;
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "two_factor_token_id")
+    private TwoFactorToken twoFactorToken;
+
     public void addVerificationToken(VerificationToken verificationToken) {
         this.verificationToken = verificationToken;
         verificationToken.setUser(this);
+    }
+
+    public void addTwoFactorToken(TwoFactorToken twoFactorToken) {
+        this.twoFactorToken = twoFactorToken;
+        twoFactorToken.setUser(this);
     }
 
     @Override
@@ -50,4 +59,6 @@ public class User {
                 ", enabled=" + enabled +
                 '}';
     }
+
+
 }

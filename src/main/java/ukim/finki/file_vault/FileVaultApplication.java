@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-//TODO implement auto-deletion of expired account verification codes along with their accounts
-//TODO proper exception handling in the RegisterServiceImp class
-//TODO add 2FA for the login
+//TODO implement auto-deletion of expired 2fa codes
+//TODO proper exception handling
+//TODO add re-authentication after 2fa code confirmation
 
 @SpringBootApplication
 @EnableScheduling
