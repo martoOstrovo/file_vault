@@ -26,7 +26,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     private final UserService userService;
     private final TwoFactorTokenService twoFactorTokenService;
 
-    public  CustomAuthenticationSuccessHandler(RoleRepository roleRepository, UserService userService,  TwoFactorTokenService twoFactorTokenService) {
+    public  CustomAuthenticationSuccessHandler(RoleRepository roleRepository,
+                                               UserService userService,
+                                               TwoFactorTokenService twoFactorTokenService) {
+
         this.roleRepository = roleRepository;
         this.userService = userService;
         this.twoFactorTokenService = twoFactorTokenService;
@@ -39,7 +42,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 new RuntimeException("Error in CustomAuthenticationSuccessHandler ROLE search."));
 
         assert user != null;
-        if(user.getRoles().stream().noneMatch(role -> role.getRoleName().equals(roleUnconfirmed.getRoleName()))) {
+        if(user.getRoles().stream().noneMatch(role -> role.equals(roleUnconfirmed))) {
             user.getRoles().add(roleUnconfirmed);
             userService.saveUser(user);
         }
@@ -54,6 +57,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(customUserDetails, user.getPassword(), grantedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(token);
         twoFactorTokenService.sendTwoFactorTokenEmail(user);
-        response.sendRedirect("/welcome");
+        response.sendRedirect("/2FA");
     }
 }

@@ -1,17 +1,24 @@
 package ukim.finki.file_vault.service.implementation;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ukim.finki.file_vault.model.Role;
 import ukim.finki.file_vault.model.TwoFactorToken;
 import ukim.finki.file_vault.model.User;
+import ukim.finki.file_vault.repository.RoleRepository;
 import ukim.finki.file_vault.repository.TwoFactorTokenRepository;
+import ukim.finki.file_vault.security.CustomUserDetails;
 import ukim.finki.file_vault.service.MailSenderService;
 import ukim.finki.file_vault.service.SecurityUtils;
 import ukim.finki.file_vault.service.TwoFactorTokenService;
 import ukim.finki.file_vault.service.UserService;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TwoFactorTokenServiceImp implements TwoFactorTokenService {
@@ -21,11 +28,17 @@ public class TwoFactorTokenServiceImp implements TwoFactorTokenService {
     private final UserService userService;
     private final MailSenderService mailSender;
     private final TwoFactorTokenRepository twoFactorTokenRepository;
+    private final RoleRepository roleRepository;
 
-    public TwoFactorTokenServiceImp(UserService userService,  MailSenderService mailSender,  TwoFactorTokenRepository twoFactorTokenRepository) {
+    public TwoFactorTokenServiceImp(UserService userService,
+                                    MailSenderService mailSender,
+                                    TwoFactorTokenRepository twoFactorTokenRepository,
+                                    RoleRepository roleRepository) {
+
         this.userService = userService;
         this.mailSender = mailSender;
         this.twoFactorTokenRepository = twoFactorTokenRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -47,17 +60,37 @@ public class TwoFactorTokenServiceImp implements TwoFactorTokenService {
         User currentUser = SecurityUtils.getCurrentUser();
 
         assert currentUser != null;
-        if(twoFactorToken.getUser().getID().equals(currentUser.getID())) {
-            deleteTwoFactorToken(twoFactorToken);
+        if(twoFactorToken.getUser().equals(currentUser)) {
+            setNewAuth(currentUser);
             return true;
         }
         return false;
     }
 
-    private void deleteTwoFactorToken(TwoFactorToken twoFactorToken) {
-        User user = twoFactorToken.getUser();
-        user.setTwoFactorToken(null);
-        userService.saveUser(user);
+    @Override
+    public List<TwoFactorToken> getExpiredTokens() {
+        return twoFactorTokenRepository.findAllByExpiryDateBefore(LocalDateTime.now());
+    }
+
+    private void setNewAuth(User currentUser) {
+        CustomUserDetails customUserDetails = new CustomUserDetails(currentUser);
+        Role roleUnconfirmed = roleRepository.findByRoleName("ROLE_UNCONFIRMED").orElseThrow(() ->
+                new RuntimeException("Role Unconfirmed not found in TwoFactorTokenServiceImp"));
+
+        currentUser.getRoles().remove(roleUnconfirmed);
+        currentUser.setTwoFactorToken(null);
+        userService.saveUser(currentUser);
+
+        List<GrantedAuthority> updatedAuthorities = customUserDetails.getAuthorities()
+                .stream()
+                .filter(authority -> !authority.getAuthority().equals(roleUnconfirmed.getRoleName()))
+                .collect(Collectors.toList());
+
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(customUserDetails,
+                customUserDetails.getPassword(),
+                updatedAuthorities);
+
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
     private TwoFactorToken createTwoFactorToken(User user) {
