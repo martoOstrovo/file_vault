@@ -26,6 +26,6 @@ public class TwoFactorController {
         if(!valid) {
             return "redirect:/2FA?error=true";
         }
-        return "verify-2FA";
+        return "redirect:/welcome";
     }
 }

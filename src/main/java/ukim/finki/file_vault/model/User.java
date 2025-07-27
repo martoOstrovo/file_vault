@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -45,6 +46,18 @@ public class User {
     public void addTwoFactorToken(TwoFactorToken twoFactorToken) {
         this.twoFactorToken = twoFactorToken;
         twoFactorToken.setUser(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(ID, user.ID) && Objects.equals(username, user.username);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ID, username);
     }
 
     @Override
