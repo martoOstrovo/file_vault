@@ -22,4 +22,9 @@ public class UserServiceImp implements UserService {
     public void saveUser(User user) {
         userRepository.save(user);
     }
+
+    @Override
+    public User getUserByIdWithFiles(Long id) {
+        return userRepository.findByIDWithFiles(id).orElse(null);
+    }
 }

@@ -1,10 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th = "http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
 </head>
 <body>
 <h1>Welcome <span th:text="${user.getUsername()}"></span></h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>File name</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="file : ${files}">
+        <td th:text="${file.getFileName()}"></td>
+        <td>
+            <form method="POST" th:action="@{/file-download}" enctype="multipart/form-data">
+                <input type="hidden" name="fileID" th:value="${file.getId()}">
+                <input type="submit" value="Download">
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<p>
+    Upload a file : <a th:href="@{file-upload}"> upload </a>
+</p>
 </body>
 </html>
