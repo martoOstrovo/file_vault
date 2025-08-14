@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ukim.finki.file_vault.model.UserDTO;
+import ukim.finki.file_vault.model.exception.DefaultRoleNotFoundException;
 import ukim.finki.file_vault.service.RegisterService;
 
 @Controller
@@ -27,7 +28,7 @@ public class RegisterController {
     }
 
     @PostMapping
-    public String processRegister(@Valid @ModelAttribute("userDTO") UserDTO userDTO, BindingResult bindingResult) {
+    public String processRegister(@Valid @ModelAttribute("userDTO") UserDTO userDTO, BindingResult bindingResult) throws DefaultRoleNotFoundException {
         if (bindingResult.hasErrors()) return "register";
         registerService.registerUser(userDTO);
         return "redirect:/login";

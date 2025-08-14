@@ -7,7 +7,14 @@
 <body>
 <h1>Welcome <span th:text="${user.getUsername()}"></span></h1>
 
-<table>
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Logout">
+</form>
+
+<br>
+
+<span th:if="error != null" th:text="${error}"></span>
+<table th:if="${!files.isEmpty()}">
     <thead>
     <tr>
         <th>File name</th>

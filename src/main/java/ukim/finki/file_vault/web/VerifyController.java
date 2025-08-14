@@ -16,7 +16,7 @@ public class VerifyController {
     }
 
     @GetMapping
-    public String showVerify(@RequestParam String token) {
+    public String showVerify(@RequestParam String token) throws RuntimeException {
         registerService.confirmAccount(token);
         return "activated";
     }

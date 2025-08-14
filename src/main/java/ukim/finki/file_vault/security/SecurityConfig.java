@@ -36,7 +36,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/home", "/login", "/register", "/verify","/", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/home", "/login", "/register", "/error-page" , "/verify","/", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/2FA/**").hasRole("UNCONFIRMED")
                         .anyRequest().authenticated()
         )

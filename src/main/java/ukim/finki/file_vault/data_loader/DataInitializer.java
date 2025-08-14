@@ -29,6 +29,20 @@ public class DataInitializer implements CommandLineRunner {
         createAndSaveRole("ROLE_ADMIN");
         createAndSaveRole("ROLE_UNCONFIRMED");
         createAndSaveAdmin(new User());
+        createAndSaveUser(new User(), "user1");
+        createAndSaveUser(new User(), "user2");
+    }
+
+    private void createAndSaveUser(User user, String username) {
+        if (userRepository.findByUsername(username).isPresent()) return;
+        user.setPassword(passwordEncoder.encode(username));
+        user.setEnabled(true);
+        user.setName(username);
+        user.setEmail(username);
+        user.setSurname(username);
+        user.setUsername(username);
+        user.getRoles().add(roleRepository.findByRoleName("ROLE_USER").orElseThrow(() -> new RuntimeException("temp exception for finding role")));
+        userRepository.save(user);
     }
 
     private void createAndSaveAdmin(User admin) {

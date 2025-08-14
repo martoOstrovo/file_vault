@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import ukim.finki.file_vault.service.UserFileService;
 
+import java.io.IOException;
+
 
 @Controller
 @RequestMapping("/file-upload")
@@ -24,12 +26,14 @@ public class UploadController {
     }
 
     @PostMapping
-    public String processUpload(@RequestParam MultipartFile file, @RequestParam(required = false) String fileName) {
+    public String processUpload(@RequestParam MultipartFile file, @RequestParam(required = false) String fileName) throws IOException {
         String name;
+        String originalFileName = file.getOriginalFilename();
         if (fileName == null) {
             name = file.getOriginalFilename();
         } else {
-            String[] split = file.getOriginalFilename().split("\\.");
+            assert originalFileName != null;
+            String[] split = originalFileName.split("\\.");
             name = fileName +  "." + split[1];
         }
         userFileService.uploadFile(file, name);

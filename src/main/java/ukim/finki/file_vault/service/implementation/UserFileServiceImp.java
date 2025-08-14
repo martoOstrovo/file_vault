@@ -30,17 +30,13 @@ public class UserFileServiceImp implements UserFileService {
 
     @Override
     @Transactional
-    public void uploadFile(MultipartFile file, String fileName) {
-        try {
-            byte[] fileBytes = file.getBytes();
-            String fullPath =  basePath + "/" + SecurityUtils.getCurrentUser().getUsername() + "/" + fileName;
-            Path filePath = Paths.get(fullPath);
-            Files.createDirectories(filePath.getParent());
-            Files.write(filePath, fileBytes);
-            saveFileToDatabase(file, fileName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void uploadFile(MultipartFile file, String fileName) throws IOException {
+        byte[] fileBytes = file.getBytes();
+        String fullPath =  basePath + "/" + SecurityUtils.getCurrentUser().getUsername() + "/" + fileName;
+        Path filePath = Paths.get(fullPath);
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, fileBytes);
+        saveFileToDatabase(file, fileName);
     }
 
     @Override

@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,19 +27,21 @@ public class DownloadController {
     }
 
     @PostMapping
-    public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID) {
+    public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID) throws FileNotFoundException {
         UserFile userFile = userFileService.getUserFileById(fileID);
         File file =  new File(userFile.getFilePath());
         InputStreamResource inputStreamResource;
-        try {
-            inputStreamResource = new InputStreamResource(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        inputStreamResource = new InputStreamResource(new FileInputStream(file));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
                 .contentType(MediaType.parseMediaType(userFile.getContentType()))
                 .contentLength(file.length())
                 .body(inputStreamResource);
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    public String handleException(Exception ex, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        return "redirect:/welcome";
     }
 }
