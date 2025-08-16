@@ -4,6 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ukim.finki.file_vault.model.exception.VerificationTokenExpiredException;
+import ukim.finki.file_vault.model.exception.VerificationTokenNotFoundException;
 import ukim.finki.file_vault.service.RegisterService;
 
 @Controller
@@ -16,7 +18,7 @@ public class VerifyController {
     }
 
     @GetMapping
-    public String showVerify(@RequestParam String token) throws RuntimeException {
+    public String showVerify(@RequestParam String token) throws VerificationTokenExpiredException, VerificationTokenNotFoundException {
         registerService.confirmAccount(token);
         return "activated";
     }

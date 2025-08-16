@@ -43,10 +43,10 @@ public class TwoFactorTokenServiceImp implements TwoFactorTokenService {
     @Override
     public void sendTwoFactorTokenEmail(User user) {
         TwoFactorToken twoFactorToken = createTwoFactorToken(user);
-//        String mail = user.getEmail();
-//        String subject = "Two Factor Authentication Token";
-//        String body = "This code will expire in 5 minutes, please do not share it with anybody! \n" + twoFactorToken.getToken();
-//        mailSender.sendMail(mail, subject, body);
+        String mail = user.getEmail();
+        String subject = "Two Factor Authentication Token";
+        String body = "This code will expire in 5 minutes, please do not share it with anybody! \n" + twoFactorToken.getToken();
+        mailSender.sendMail(mail, subject, body);
     }
 
     @Override

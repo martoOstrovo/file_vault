@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.UserFile;
+import ukim.finki.file_vault.model.exception.FileNameAlreadyExistsException;
+import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
+import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.repository.UserFileRepository;
 import ukim.finki.file_vault.repository.UserRepository;
 import ukim.finki.file_vault.service.SecurityUtils;
@@ -32,7 +35,9 @@ public class UserFileServiceImp implements UserFileService {
     @Transactional
     public void uploadFile(MultipartFile file, String fileName) throws IOException {
         byte[] fileBytes = file.getBytes();
-        String fullPath =  basePath + "/" + SecurityUtils.getCurrentUser().getUsername() + "/" + fileName;
+        User currentUser = SecurityUtils.getCurrentUser();
+        assert currentUser != null;
+        String fullPath =  basePath + "/" + currentUser.getUsername() + "/" + fileName;
         Path filePath = Paths.get(fullPath);
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, fileBytes);
@@ -41,16 +46,18 @@ public class UserFileServiceImp implements UserFileService {
 
     @Override
     public UserFile getUserFileById(Long id) {
-        return userFileRepository.findById(id).orElse(null);
+        return userFileRepository.findById(id).orElseThrow(() -> new UserFileNotFoundException(id));
     }
 
-    private void saveFileToDatabase(MultipartFile file, String fileName) {
+    private void saveFileToDatabase(MultipartFile file, String fileName) throws FileNameAlreadyExistsException {
+        checkFileNameAvailability(fileName);
+
         Optional<User> currentUserOpt = userRepository.findByIDWithFiles(SecurityUtils.getCurrentUser().getID());
         User currentUser;
         if (currentUserOpt.isPresent()) {
             currentUser = currentUserOpt.get();
         } else {
-            throw new RuntimeException("User not found in class UserFileServiceImp");
+            throw new UserNotFoundInSessionException();
         }
 
         UserFile userFile = new UserFile();
@@ -62,5 +69,12 @@ public class UserFileServiceImp implements UserFileService {
         userFile.getUsersWithAccess().add(currentUser);
         currentUser.getFiles().add(userFile);
         userRepository.save(currentUser);
+    }
+
+    private void checkFileNameAvailability(String fileName) {
+        Optional<UserFile> userFileOpt = userFileRepository.findByFileName(fileName);
+        if (userFileOpt.isPresent()) {
+            throw new FileNameAlreadyExistsException(fileName);
+        }
     }
 }
