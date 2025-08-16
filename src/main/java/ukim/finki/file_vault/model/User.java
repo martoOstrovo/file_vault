@@ -38,6 +38,19 @@ public class User {
     @JoinColumn(name = "two_factor_token_id")
     private TwoFactorToken twoFactorToken;
 
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE,
+            CascadeType.REFRESH,
+            CascadeType.DETACH
+    })
+    @JoinTable(
+            name = "users_files",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_file_id")
+    )
+    private List<UserFile> files = new ArrayList<>();
+
     public void addVerificationToken(VerificationToken verificationToken) {
         this.verificationToken = verificationToken;
         verificationToken.setUser(this);

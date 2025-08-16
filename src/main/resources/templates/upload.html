@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload</title>
+</head>
+<body>
+<h1>File upload</h1>
+<form method="POST" th:action="@{/file-upload}" enctype="multipart/form-data">
+    <label for="file">Choose a file</label>
+    <input type="file" name="file" id="file">
+
+    <br><br>
+    <label for="fileName" >File name, original name will be kept if no value is provided</label>
+    <input type="text" name="fileName" id="fileName">
+
+    <br><br>
+    <input type="submit" value="Upload">
+</form>
+</body>
+</html>
