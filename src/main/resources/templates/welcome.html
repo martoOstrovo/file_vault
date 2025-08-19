@@ -26,9 +26,8 @@
     <tr th:each="file : ${files}">
         <td th:text="${file.getFileName()}"></td>
         <td>
-            <form method="POST" th:action="@{/file-download}" enctype="multipart/form-data">
-                <input type="hidden" name="fileID" th:value="${file.getId()}">
-                <input type="submit" value="Download">
+            <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">
+                <input type="submit" value="manage">
             </form>
         </td>
     </tr>

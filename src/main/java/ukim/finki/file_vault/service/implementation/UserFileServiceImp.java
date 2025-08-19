@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -47,6 +49,22 @@ public class UserFileServiceImp implements UserFileService {
     @Override
     public UserFile getUserFileById(Long id) {
         return userFileRepository.findById(id).orElseThrow(() -> new UserFileNotFoundException(id));
+    }
+
+    @Override
+    public void changeFileName(String newFileName, Long fileID) throws FileNameAlreadyExistsException, IOException , UserNotFoundInSessionException {
+        UserFile file = getUserFileById(fileID);
+        String ext = file.getFileName().split("\\.")[1];
+        newFileName = newFileName + "." + ext;
+        checkFileNameAvailability(newFileName);
+        User currentUser = userRepository
+                .findById(Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID()).orElseThrow(UserNotFoundInSessionException::new);
+        String newPathString = basePath + "/" + currentUser.getUsername() + "/" + newFileName;
+        Path newFilePath = Paths.get(newPathString);
+        Files.move(Paths.get(file.getFilePath()), newFilePath, StandardCopyOption.REPLACE_EXISTING);
+        file.setFileName(newFileName);
+        file.setFilePath(newPathString);
+        userFileRepository.save(file);
     }
 
     private void saveFileToDatabase(MultipartFile file, String fileName) throws FileNameAlreadyExistsException {

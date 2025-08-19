@@ -3,7 +3,9 @@ package ukim.finki.file_vault.service.implementation;
 import org.springframework.stereotype.Service;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.repository.UserRepository;
+import ukim.finki.file_vault.service.SecurityUtils;
 import ukim.finki.file_vault.service.UserService;
+import java.util.Objects;
 
 @Service
 public class UserServiceImp implements UserService {
@@ -19,6 +21,7 @@ public class UserServiceImp implements UserService {
         userRepository.delete(user);
     }
 
+    @Override
     public void saveUser(User user) {
         userRepository.save(user);
     }
@@ -26,5 +29,10 @@ public class UserServiceImp implements UserService {
     @Override
     public User getUserByIdWithFiles(Long id) {
         return userRepository.findByIDWithFiles(id).orElse(null);
+    }
+
+    @Override
+    public boolean userOwnsFile(Long fileID) {
+        return Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID().equals(fileID);
     }
 }

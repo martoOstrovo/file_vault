@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage File</title>
+</head>
+<body>
+<p>File : <span th:text="${file.getFileName()}"></span></p>
+<br><br>
+<form method="post" th:action="@{'/file-download?fileID={fileID}'(fileID = ${file.getId()})}" enctype="multipart/form-data">
+    <label>Download the file: </label>
+    <input type="submit" value="Download">
+</form>
+<div th:if="userOwnsFile">
+    <form method="post" th:action="@{/manage-file/change-name}">
+        <label for="newFileName">Change file name: </label>
+        <input type="hidden" name="fileID" th:value="${file.getId()}">
+        <input type="text" name="newFileName" id="newFileName">
+        <input type="submit" value="Submit">
+    </form>
+</div>
+</body>
+</html>

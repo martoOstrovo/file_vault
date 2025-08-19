@@ -8,4 +8,5 @@ import java.io.IOException;
 public interface UserFileService {
     void uploadFile(MultipartFile file, String fileName) throws IOException;
     UserFile getUserFileById(Long id);
+    void changeFileName(String newFileName, Long fileID) throws IOException;
 }
