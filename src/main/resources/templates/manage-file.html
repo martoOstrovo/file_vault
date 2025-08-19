@@ -5,19 +5,65 @@
     <title>Manage File</title>
 </head>
 <body>
+<a th:href="@{/welcome}">home</a>
 <p>File : <span th:text="${file.getFileName()}"></span></p>
-<br><br>
 <form method="post" th:action="@{'/file-download?fileID={fileID}'(fileID = ${file.getId()})}" enctype="multipart/form-data">
     <label>Download the file: </label>
     <input type="submit" value="Download">
 </form>
-<div th:if="userOwnsFile">
+
+<div th:if="${!userOwnsFile}">
+    <form method="POST" th:action="@{/manage-file/remove-file}">
+        <input type="hidden" name="fileID" th:value="${file.getId()}">
+        <input type="hidden" name="userID" th:value="${userID}">
+        <input type="submit" value="remove">
+    </form>
+</div>
+
+<div th:if="${userOwnsFile}">
+
+    <p th:if="${fileNameExists!=null}" th:text="${fileNameExists}"></p>
+
     <form method="post" th:action="@{/manage-file/change-name}">
         <label for="newFileName">Change file name: </label>
         <input type="hidden" name="fileID" th:value="${file.getId()}">
         <input type="text" name="newFileName" id="newFileName">
         <input type="submit" value="Submit">
     </form>
+
+    <br>
+
+    <form method="post" th:action="@{/manage-file/delete}">
+        <label for="newFileName">Delete the file: </label>
+        <input type="hidden" name="fileID" th:value="${file.getId()}">
+        <input type="submit" value="Delete">
+    </form>
+
+    <p>Access List:</p>
+    <form method="GET" th:action="@{'/user-list/{fileID}'(fileID = ${file.getId()})}">
+        <input type="submit" value="Add user">
+    </form>
+    <table>
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="user : ${usersWithAccess}" th:if="${user.getID() != file.getOwnerID()}">
+            <td th:text="${user.username}"></td>
+            <td>
+                <form method="POST" th:action="@{/manage-file/remove-file}">
+                    <input type="hidden" name="fileID" th:value="${file.getId()}">
+                    <input type="hidden" name="userID" th:value="${user.getID()}">
+                    <input type="submit" value="remove">
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 </body>
 </html>

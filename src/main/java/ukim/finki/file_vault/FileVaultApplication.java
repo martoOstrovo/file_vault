@@ -4,9 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-//TODO implement auto-deletion of expired 2fa codes
-//TODO proper exception handling
-//TODO add re-authentication after 2fa code confirmation
+//TODO divide the files by user owned and non user owned when showcasing them.
 
 @SpringBootApplication
 @EnableScheduling
