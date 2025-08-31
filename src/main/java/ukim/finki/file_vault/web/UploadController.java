@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ukim.finki.file_vault.model.exception.FileNameAlreadyExistsException;
+import ukim.finki.file_vault.model.exception.IllegalFileNameException;
 import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.service.UserFileService;
 import java.io.IOException;
@@ -26,13 +27,14 @@ public class UploadController {
 
     @PostMapping
     public String processUpload(@RequestParam MultipartFile file, @RequestParam(required = false) String fileName)
-            throws IOException , UserNotFoundInSessionException, FileNameAlreadyExistsException {
+            throws IOException , UserNotFoundInSessionException, FileNameAlreadyExistsException, IllegalFileNameException {
 
         String name;
         String originalFileName = file.getOriginalFilename();
         if (fileName == null || fileName.isBlank()) {
             name = file.getOriginalFilename();
         } else {
+            assert originalFileName != null;
             String[] split = originalFileName.split("\\.");
             String ext = split[split.length - 1];
             name = fileName +  "." + ext;
@@ -46,4 +48,11 @@ public class UploadController {
         redirectAttributes.addFlashAttribute("error", e.getMessage());
         return "redirect:/welcome";
     }
+
+    @ExceptionHandler
+    public String handleIllegalFileNameException(IllegalFileNameException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", e.getMessage());
+        return "redirect:/welcome";
+    }
+
 }
