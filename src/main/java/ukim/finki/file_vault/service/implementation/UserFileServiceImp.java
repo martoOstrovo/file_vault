@@ -66,10 +66,15 @@ public class UserFileServiceImp implements UserFileService {
             throws FileNameAlreadyExistsException, IOException , UserNotFoundInSessionException, IllegalFileNameException {
 
         UserFile file = getUserFileById(fileID);
-        String ext = file.getFileName().split("\\.")[1];
+
+        String[] split = file.getFileName().split("\\.");
+        String ext = split[split.length - 1];
+
         newFileName = newFileName + "." + ext;
+
         checkFileNameAvailability(newFileName);
         checkFileNameLegality(newFileName);
+
         User currentUser = userRepository
                 .findById(Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID()).orElseThrow(UserNotFoundInSessionException::new);
         String newPathString = basePath + "/" + currentUser.getUsername() + "/" + newFileName;
@@ -83,13 +88,13 @@ public class UserFileServiceImp implements UserFileService {
     @Override
     public void deleteFileByID(Long fileID) throws IOException {
         UserFile file = userFileRepository.findByFileIDWithUsersWithAccess(fileID).orElseThrow(FileNotFoundException::new);
-        Files.delete(Path.of(file.getFilePath()));
         for(User user : file.getUsersWithAccess()) {
             user.getFiles().remove(file);
         }
         file.setUsersWithAccess(null);
         userFileRepository.delete(file);
 
+        Files.delete(Path.of(file.getFilePath()));
     }
 
     private void saveFileToDatabase(MultipartFile file, String fileName) throws FileNameAlreadyExistsException, IllegalFileNameException {
