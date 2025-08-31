@@ -14,16 +14,37 @@
 <br>
 
 <span th:if="error != null" th:text="${error}"></span>
-<table th:if="${!files.isEmpty()}">
+
+<table th:if="${!ownedFiles.isEmpty()}">
     <thead>
     <tr>
-        <th>File name</th>
-        <th>Action</th>
+        <th>Owned files:</th>
+<!--        <th>Action</th>-->
     </tr>
     </thead>
 
     <tbody>
-    <tr th:each="file : ${files}">
+    <tr th:each="file : ${ownedFiles}">
+        <td th:text="${file.getFileName()}"></td>
+        <td>
+            <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">
+                <input type="submit" value="manage">
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<table th:if="${!accessibleFiles.isEmpty()}">
+    <thead>
+    <tr>
+        <th>Accessible files:</th>
+        <!--        <th>Action</th>-->
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="file : ${accessibleFiles}">
         <td th:text="${file.getFileName()}"></td>
         <td>
             <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">

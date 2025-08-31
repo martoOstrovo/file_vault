@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.UserFile;
 import ukim.finki.file_vault.model.exception.FileNameAlreadyExistsException;
+import ukim.finki.file_vault.model.exception.IllegalFileNameException;
 import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
 import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.repository.UserFileRepository;
@@ -21,11 +22,14 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class UserFileServiceImp implements UserFileService {
     private final UserRepository userRepository;
     private final UserFileRepository userFileRepository;
+    private final static Pattern FILE_PATTERN = Pattern.compile("^[a-zA-Z0-9][^\\\\/:*?\"<>|]*\\.[a-zA-Z0-9]{1,5}$");
     @Value("${file.storage.base-path}")
     private String basePath;
 
@@ -36,7 +40,9 @@ public class UserFileServiceImp implements UserFileService {
 
     @Override
     @Transactional
-    public void uploadFile(MultipartFile file, String fileName) throws IOException {
+    public void uploadFile(MultipartFile file, String fileName) throws IOException, FileNameAlreadyExistsException, IllegalFileNameException {
+        saveFileToDatabase(file, fileName);
+
         byte[] fileBytes = file.getBytes();
         User currentUser = SecurityUtils.getCurrentUser();
         assert currentUser != null;
@@ -44,7 +50,6 @@ public class UserFileServiceImp implements UserFileService {
         Path filePath = Paths.get(fullPath);
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, fileBytes);
-        saveFileToDatabase(file, fileName);
     }
 
     @Override
@@ -57,11 +62,14 @@ public class UserFileServiceImp implements UserFileService {
     }
 
     @Override
-    public void changeFileName(String newFileName, Long fileID) throws FileNameAlreadyExistsException, IOException , UserNotFoundInSessionException {
+    public void changeFileName(String newFileName, Long fileID)
+            throws FileNameAlreadyExistsException, IOException , UserNotFoundInSessionException, IllegalFileNameException {
+
         UserFile file = getUserFileById(fileID);
         String ext = file.getFileName().split("\\.")[1];
         newFileName = newFileName + "." + ext;
         checkFileNameAvailability(newFileName);
+        checkFileNameLegality(newFileName);
         User currentUser = userRepository
                 .findById(Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID()).orElseThrow(UserNotFoundInSessionException::new);
         String newPathString = basePath + "/" + currentUser.getUsername() + "/" + newFileName;
@@ -84,8 +92,9 @@ public class UserFileServiceImp implements UserFileService {
 
     }
 
-    private void saveFileToDatabase(MultipartFile file, String fileName) throws FileNameAlreadyExistsException {
+    private void saveFileToDatabase(MultipartFile file, String fileName) throws FileNameAlreadyExistsException, IllegalFileNameException {
         checkFileNameAvailability(fileName);
+        checkFileNameLegality(fileName);
 
         Optional<User> currentUserOpt = userRepository.findByIDWithFiles(Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID());
         User currentUser;
@@ -104,6 +113,11 @@ public class UserFileServiceImp implements UserFileService {
         userFile.getUsersWithAccess().add(currentUser);
         currentUser.getFiles().add(userFile);
         userRepository.save(currentUser);
+    }
+
+    private void checkFileNameLegality(String fileName) {
+        Matcher matcher = FILE_PATTERN.matcher(fileName);
+        if (!matcher.matches()) throw new IllegalFileNameException(fileName);
     }
 
     private void checkFileNameAvailability(String fileName) {

@@ -16,13 +16,16 @@
     <form method="POST" th:action="@{/manage-file/remove-file}">
         <input type="hidden" name="fileID" th:value="${file.getId()}">
         <input type="hidden" name="userID" th:value="${userID}">
-        <input type="submit" value="remove">
+        <label>Remove the file: </label>
+        <input type="submit" value="Remove">
     </form>
 </div>
 
 <div th:if="${userOwnsFile}">
 
     <p th:if="${fileNameExists!=null}" th:text="${fileNameExists}"></p>
+    <!--/*@thymesVar id="illegalFileName" type="java"*/-->
+    <p th:if="${illegalFileName!=null}" th:text="${illegalFileName}"></p>
 
     <form method="post" th:action="@{/manage-file/change-name}">
         <label for="newFileName">Change file name: </label>
@@ -38,16 +41,16 @@
         <input type="hidden" name="fileID" th:value="${file.getId()}">
         <input type="submit" value="Delete">
     </form>
+    <br>
 
-    <p>Access List:</p>
+<!--    <p>Access List:</p>-->
     <form method="GET" th:action="@{'/user-list/{fileID}'(fileID = ${file.getId()})}">
         <input type="submit" value="Add user">
     </form>
     <table>
         <thead>
         <tr>
-            <th>Username</th>
-            <th>Action</th>
+            <th>Access List:</th>
         </tr>
         </thead>
 

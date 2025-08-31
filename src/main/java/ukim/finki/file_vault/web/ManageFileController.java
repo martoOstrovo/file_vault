@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ukim.finki.file_vault.model.UserFile;
 import ukim.finki.file_vault.model.exception.FileNameAlreadyExistsException;
+import ukim.finki.file_vault.model.exception.IllegalFileNameException;
 import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
 import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.service.SecurityUtils;
@@ -51,6 +52,9 @@ public class ManageFileController {
             userFileService.changeFileName(newFileName, fileID);
         } catch (FileNameAlreadyExistsException e) {
             redirectAttributes.addFlashAttribute("fileNameExists", "File name already exists!");
+            return "redirect:/manage-file/"+ fileID;
+        } catch (IllegalFileNameException e) {
+            redirectAttributes.addFlashAttribute("illegalFileName", e.getMessage());
             return "redirect:/manage-file/"+ fileID;
         }
         return "redirect:/welcome";
