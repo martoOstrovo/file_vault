@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.UserFile;
+import ukim.finki.file_vault.model.exception.NoAccessToFileException;
 import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
 import ukim.finki.file_vault.model.exception.UserNotFoundException;
 import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
@@ -71,5 +72,11 @@ public class UserServiceImp implements UserService {
         user.getFiles().remove(userFile);
         userFile.getUsersWithAccess().remove(user);
         userFileRepository.save(userFile);
+    }
+
+    @Override
+    public void userHasAccessToFile(UserFile userFile) {
+        User currentUser = getUserByIdWithFiles(Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID());
+        if(!(currentUser.getFiles().contains(userFile))) throw new NoAccessToFileException();
     }
 }

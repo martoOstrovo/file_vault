@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ukim.finki.file_vault.model.UserFile;
+import ukim.finki.file_vault.model.exception.NoAccessToFileException;
 import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
-import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.service.UserFileService;
+import ukim.finki.file_vault.service.UserService;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,14 +25,19 @@ import java.io.FileNotFoundException;
 @RequestMapping("/file-download")
 public class DownloadController {
     private final UserFileService userFileService;
+    private final UserService userService;
 
-    public DownloadController(UserFileService userFileService) {
+    public DownloadController(UserFileService userFileService,  UserService userService) {
         this.userFileService = userFileService;
+        this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID) throws FileNotFoundException, UserFileNotFoundException {
+    public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID)
+            throws FileNotFoundException, UserFileNotFoundException, NoAccessToFileException {
+
         UserFile userFile = userFileService.getUserFileById(fileID);
+        userService.userHasAccessToFile(userFile);
         File file =  new File(userFile.getFilePath());
         InputStreamResource inputStreamResource;
         inputStreamResource = new InputStreamResource(new FileInputStream(file));
@@ -42,7 +49,7 @@ public class DownloadController {
     }
 
     @ExceptionHandler(UserFileNotFoundException.class)
-    public String handleUserFileNotFoundException(UserNotFoundInSessionException e, RedirectAttributes redirectAttributes) {
+    public String handleUserFileNotFoundException(UserFileNotFoundException e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("message", e.getMessage());
         return "redirect:/welcome";
     }
