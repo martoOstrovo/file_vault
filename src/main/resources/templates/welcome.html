@@ -3,60 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h1>Welcome <span th:text="${user.getUsername()}"></span></h1>
+<body class="bg-gray-50 min-h-screen">
 
-<form th:action="@{/logout}" method="post">
-    <input type="submit" value="Logout">
-</form>
+<header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 py-6 flex justify-between items-center">
+        <h1 class="text-2xl font-semibold text-gray-900">
+            Welcome <span th:text="${user.getUsername()}" class="text-black"></span>
+        </h1>
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Logout"
+                   class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors cursor-pointer">
+        </form>
+    </div>
+</header>
 
-<br>
+<main class="max-w-4xl mx-auto px-4 py-8">
 
-<span th:if="error != null" th:text="${error}"></span>
+    <div th:if="error != null" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p th:text="${error}" class="text-red-800 text-sm"></p>
+    </div>
 
-<table th:if="${!ownedFiles.isEmpty()}">
-    <thead>
-    <tr>
-        <th>Owned files:</th>
-<!--        <th>Action</th>-->
-    </tr>
-    </thead>
+    <div class="space-y-8">
 
-    <tbody>
-    <tr th:each="file : ${ownedFiles}">
-        <td th:text="${file.getFileName()}"></td>
-        <td>
-            <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">
-                <input type="submit" value="manage">
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        <div th:if="${!ownedFiles.isEmpty()}" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Owned Files</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="file : ${ownedFiles}" class="hover:bg-gray-50">
+                        <td th:text="${file.getFileName()}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">
+                                <input type="submit" value="Manage"
+                                       class="px-3 py-1 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors cursor-pointer">
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<table th:if="${!accessibleFiles.isEmpty()}">
-    <thead>
-    <tr>
-        <th>Accessible files:</th>
-        <!--        <th>Action</th>-->
-    </tr>
-    </thead>
+        <div th:if="${!accessibleFiles.isEmpty()}" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-900">Accessible Files</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="file : ${accessibleFiles}" class="hover:bg-gray-50">
+                        <td th:text="${file.getFileName()}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"></td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">
+                                <input type="submit" value="Manage"
+                                       class="px-3 py-1 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors cursor-pointer">
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-    <tbody>
-    <tr th:each="file : ${accessibleFiles}">
-        <td th:text="${file.getFileName()}"></td>
-        <td>
-            <form method="GET" th:action="@{'/manage-file/{fileID}' (fileID = ${file.getId()})}">
-                <input type="submit" value="manage">
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
-
-<p>
-    Upload a file : <a th:href="@{file-upload}"> upload </a>
-</p>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <span class="text-gray-700">Want to add a new file?</span>
+                <a th:href="@{file-upload}"
+                   class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                    Upload File
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
 </body>
 </html>
