@@ -3,16 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<a th:href="@{/login}">Login</a>
-<a th:href="@{/register}">Register</a>
-<h1>Welcome</h1>
-<h3>This is the home page.</h3>
-<div sec:authorize="isAuthenticated()">
-    <form th:action="@{/logout}" method="post">
-        <input type="submit" value="Logout">
-    </form>
-</div>
+<body class="min-h-screen bg-gray-50">
+
+<header class="bg-white border-b border-gray-200">
+    <div class="max-w-4xl mx-auto px-6 py-4">
+        <nav class="flex justify-between items-center">
+            <div class="text-xl font-semibold text-gray-900">
+                Home
+            </div>
+            <div class="flex space-x-4">
+                <a th:href="@{/login}"
+                   class="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors duration-200">
+                    Login
+                </a>
+                <a th:href="@{/register}"
+                   class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200">
+                    Register
+                </a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-6 py-12">
+    <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            Welcome
+        </h1>
+        <h3 class="text-xl text-gray-600 mb-8">
+            This is the home page.
+        </h3>
+    </div>
+
+    <div sec:authorize="isAuthenticated()" class="mt-12 text-center">
+        <div class="bg-white rounded-lg border border-gray-200 p-6 max-w-md mx-auto">
+            <p class="text-gray-600 mb-4">You are logged in</p>
+            <form th:action="@{/logout}" method="post">
+                <input type="submit" value="Logout"
+                       class="px-6 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer">
+            </form>
+        </div>
+    </div>
+</main>
 </body>
 </html>
