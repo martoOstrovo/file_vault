@@ -23,7 +23,7 @@ public class UserListController {
         this.userFileService = userFileService;
     }
 
-    @GetMapping("{fileID}")
+    @GetMapping("/{fileID}")
     public String showUserList(@PathVariable Long fileID, Model model) throws UserFileNotFoundException {
         UserFile file = userFileService.getUserFileById(fileID);
         List<User> allUsers = userService.getAllUsers();

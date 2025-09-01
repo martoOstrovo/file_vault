@@ -27,10 +27,22 @@ public class ManageFileController {
     }
 
     @GetMapping("/{fileID}")
-    public String showManageFilePage(@PathVariable Long fileID, Model model, @ModelAttribute(value = "fileNameExists") String fileNameExists)
+    public String showManageFilePage(@PathVariable Long fileID, Model model,
+                                     @ModelAttribute(value = "fileNameExists") String fileNameExists,
+                                     @ModelAttribute(value = "illegalFileName") String illegalFileName)
             throws UserNotFoundInSessionException, UserFileNotFoundException {
 
-        if(fileNameExists != null) model.addAttribute("fileNameExists", fileNameExists);
+        if(fileNameExists == null || fileNameExists.isEmpty()) {
+            model.addAttribute("fileNameExists", null);
+        } else {
+            model.addAttribute("fileNameExists", fileNameExists);
+        }
+
+        if (illegalFileName == null || illegalFileName.isEmpty()) {
+            model.addAttribute("illegalFileName", null);
+        } else {
+            model.addAttribute("illegalFileName", illegalFileName);
+        }
 
         Long userID = Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID();
         model.addAttribute("userID", userID);
@@ -69,7 +81,7 @@ public class ManageFileController {
     @PostMapping("/remove-file")
     public String processFileRemoval(@RequestParam Long fileID, @RequestParam Long userID) {
         userService.removeFileFromUserByIDs(userID, fileID);
-        return "redirect:/welcome";
+        return "redirect:/manage-file/"+ fileID;
     }
 
 }
