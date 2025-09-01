@@ -33,7 +33,11 @@ public class WelcomeController {
         model.addAttribute("user", currentUser);
         model.addAttribute("ownedFiles", ownedFiles);
         model.addAttribute("accessibleFiles", accessibleFiles);
-        model.addAttribute("error", error);
+        if ( error == null || error.isEmpty() ) {
+            model.addAttribute("error", null);
+        } else {
+            model.addAttribute("error", error);
+        }
         return "welcome";
     }
 }
