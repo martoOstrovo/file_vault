@@ -20,8 +20,12 @@ public class UserFile {
     private Long ownerID;
     private Long size;
     private String filePath;
+    private String backupPath;
     private String fileName;
     private String contentType;
+    private String ivBase64;
+    private String hmacBase64;
+
     @ManyToMany(mappedBy = "files")
     private List<User> usersWithAccess = new ArrayList<>();
 

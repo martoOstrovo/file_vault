@@ -16,9 +16,13 @@ import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
 import ukim.finki.file_vault.service.UserFileService;
 import ukim.finki.file_vault.service.UserService;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 @Controller
@@ -34,17 +38,21 @@ public class DownloadController {
 
     @PostMapping
     public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID)
-            throws FileNotFoundException, UserFileNotFoundException, NoAccessToFileException {
+            throws Exception {
 
         UserFile userFile = userFileService.getUserFileById(fileID);
         userService.userHasAccessToFile(userFile);
-        File file =  new File(userFile.getFilePath());
+
+        Path filePath = Paths.get(userFile.getFilePath());
+        Path backupPath = Paths.get(userFile.getBackupPath());
+
+        byte[] plainData = userFileService.safeReadFile(filePath, backupPath, userFile);
         InputStreamResource inputStreamResource;
-        inputStreamResource = new InputStreamResource(new FileInputStream(file));
+        inputStreamResource = new InputStreamResource(new ByteArrayInputStream(plainData));
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + userFile.getFileName() + "\"")
                 .contentType(MediaType.parseMediaType(userFile.getContentType()))
-                .contentLength(file.length())
+                .contentLength(plainData.length)
                 .body(inputStreamResource);
     }
 

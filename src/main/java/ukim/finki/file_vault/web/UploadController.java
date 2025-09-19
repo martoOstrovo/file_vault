@@ -27,7 +27,7 @@ public class UploadController {
 
     @PostMapping
     public String processUpload(@RequestParam MultipartFile file, @RequestParam(required = false) String fileName)
-            throws IOException , UserNotFoundInSessionException, FileNameAlreadyExistsException, IllegalFileNameException {
+            throws UserNotFoundInSessionException, FileNameAlreadyExistsException, IllegalFileNameException {
 
         String name;
         String originalFileName = file.getOriginalFilename();
@@ -39,7 +39,11 @@ public class UploadController {
             String ext = split[split.length - 1];
             name = fileName +  "." + ext;
         }
-        userFileService.uploadFile(file, name);
+        try {
+            userFileService.uploadFile(file, name);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return "redirect:/welcome";
     }
 

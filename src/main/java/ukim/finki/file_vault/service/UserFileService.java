@@ -5,12 +5,14 @@ import ukim.finki.file_vault.model.UserFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 public interface UserFileService {
-    void uploadFile(MultipartFile file, String fileName) throws IOException;
+    void uploadFile(MultipartFile file, String fileName) throws Exception;
     UserFile getUserFileById(Long id);
     void changeFileName(String newFileName, Long fileID) throws IOException;
     void deleteFileByID(Long fileID) throws IOException;
     UserFile getUserFileByIDWithAccessList(Long id);
+    byte[] safeReadFile(Path main, Path backup, UserFile userFile) throws Exception;
 }
