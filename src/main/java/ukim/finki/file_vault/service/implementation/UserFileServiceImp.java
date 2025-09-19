@@ -12,7 +12,6 @@ import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
 import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.repository.UserFileRepository;
 import ukim.finki.file_vault.repository.UserRepository;
-import ukim.finki.file_vault.service.CryptoUtils;
 import ukim.finki.file_vault.service.SecurityUtils;
 import ukim.finki.file_vault.service.UserFileService;
 import javax.crypto.AEADBadTagException;
@@ -36,7 +35,7 @@ public class UserFileServiceImp implements UserFileService {
     private final UserRepository userRepository;
     private final UserFileRepository userFileRepository;
     private final static Pattern FILE_PATTERN = Pattern.compile("^[a-zA-Z0-9][^\\\\/:*?\"<>|]*\\.[a-zA-Z0-9]{1,5}$");
-    private final CryptoUtils cryptoUtils;
+    private final CryptoUtilsImp cryptoUtils;
 
     @Value("${file.storage.base-path}")
     private String basePath;
@@ -44,7 +43,7 @@ public class UserFileServiceImp implements UserFileService {
     @Value("${file.storage.backup-path}")
     private String backupPath;
 
-    public UserFileServiceImp(UserRepository userRepository, UserFileRepository userFileRepository, CryptoUtils cryptoUtils) {
+    public UserFileServiceImp(UserRepository userRepository, UserFileRepository userFileRepository, CryptoUtilsImp cryptoUtils) {
         this.userRepository = userRepository;
         this.userFileRepository = userFileRepository;
         this.cryptoUtils = cryptoUtils;
