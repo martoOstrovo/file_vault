@@ -15,9 +15,17 @@ import ukim.finki.file_vault.repository.UserRepository;
 import ukim.finki.file_vault.service.CryptoUtils;
 import ukim.finki.file_vault.service.SecurityUtils;
 import ukim.finki.file_vault.service.UserFileService;
+
+import javax.crypto.AEADBadTagException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,14 +45,10 @@ public class UserFileServiceImp implements UserFileService {
     @Value("${file.storage.backup-path}")
     private String backupPath;
 
-    public UserFileServiceImp(UserRepository userRepository,
-                              UserFileRepository userFileRepository,
-                              @Value("${AES_MASTER_KEY_BASE64}") String aesKey,
-                              @Value("${HMAC_SECRET_BASE64}") String hmacKey) {
-
+    public UserFileServiceImp(UserRepository userRepository, UserFileRepository userFileRepository, CryptoUtils cryptoUtils) {
         this.userRepository = userRepository;
         this.userFileRepository = userFileRepository;
-        this.cryptoUtils = new CryptoUtils(aesKey, hmacKey);
+        this.cryptoUtils = cryptoUtils;
     }
 
     @Override
@@ -53,9 +57,8 @@ public class UserFileServiceImp implements UserFileService {
         byte[] IV = cryptoUtils.generateIV();
         byte[] fileBytes = file.getBytes();
         byte[] encrypted = cryptoUtils.encrypt(fileBytes, IV);
-        byte[] hmac = cryptoUtils.calculateHmac(encrypted);
 
-        saveFileToDatabase(file, fileName, IV, hmac);
+        saveFileToDatabase(file, fileName, IV);
 
         User currentUser = SecurityUtils.getCurrentUser();
         assert currentUser != null;
@@ -97,10 +100,14 @@ public class UserFileServiceImp implements UserFileService {
                 .findById(Objects.requireNonNull(SecurityUtils.getCurrentUser()).getID()).orElseThrow(UserNotFoundInSessionException::new);
 
         String newPathString = basePath + "/" + currentUser.getUsername() + "/" + newFileName;
+        String newBackupPath = backupPath + "/" + currentUser.getUsername() + "/" + newFileName;
         Path newFilePath = Paths.get(newPathString);
+        Path backupPath = Paths.get(newBackupPath);
         Files.move(Paths.get(file.getFilePath()), newFilePath, StandardCopyOption.REPLACE_EXISTING);
+        Files.move(Paths.get(file.getBackupPath()), backupPath, StandardCopyOption.REPLACE_EXISTING);
         file.setFileName(newFileName);
         file.setFilePath(newPathString);
+        file.setBackupPath(newBackupPath);
         userFileRepository.save(file);
     }
 
@@ -118,30 +125,34 @@ public class UserFileServiceImp implements UserFileService {
     }
 
     @Override
-    public byte[] safeReadFile(Path main, Path backup, UserFile userFile) throws Exception {
-        byte[] iv = Base64.getDecoder().decode(userFile.getIvBase64());
-        byte[] expectedHmac = Base64.getDecoder().decode(userFile.getHmacBase64());
+    public byte[] safeReadFile(Path main, Path backup, UserFile userFile) throws IOException,
+            InvalidAlgorithmParameterException,
+            NoSuchPaddingException,
+            IllegalBlockSizeException,
+            NoSuchAlgorithmException,
+            InvalidKeyException,
+            BadPaddingException {
 
-        if(Files.exists(main)) {
+        byte[] iv = Base64.getDecoder().decode(userFile.getIvBase64());
+        try {
             byte[] mainData = Files.readAllBytes(main);
-            if(cryptoUtils.verifyMac(mainData, expectedHmac)) {
-                return cryptoUtils.decrypt(mainData, iv);
-            }
-        }
-        if (Files.exists(backup)) {
-            byte[] backupData = Files.readAllBytes(backup);
-            if(cryptoUtils.verifyMac(backupData, expectedHmac)) {
+            return cryptoUtils.decrypt(mainData, iv);
+        } catch (AEADBadTagException e) {
+            try {
+                byte[] backupData = Files.readAllBytes(backup);
                 Files.write(Path.of(userFile.getFilePath()), backupData);
                 return cryptoUtils.decrypt(backupData, iv);
+            } catch (AEADBadTagException e1) {
+                deleteFileByID(userFile.getId());
+                Files.deleteIfExists(main);
+                Files.deleteIfExists(backup);
+                throw new FileNotFoundException("The file was tampered with and removed for safety.");
             }
         }
-        deleteFileByID(userFile.getId());
-        Files.deleteIfExists(main);
-        Files.deleteIfExists(backup);
-        throw new FileNotFoundException("The file was tampered with and removed for safety.");
+
     }
 
-    private void saveFileToDatabase(MultipartFile file, String fileName, byte[] IV, byte[] hmac) throws FileNameAlreadyExistsException, IllegalFileNameException {
+    private void saveFileToDatabase(MultipartFile file, String fileName, byte[] IV) throws FileNameAlreadyExistsException, IllegalFileNameException {
         checkFileNameAvailability(fileName);
         checkFileNameLegality(fileName);
 
@@ -160,7 +171,6 @@ public class UserFileServiceImp implements UserFileService {
         userFile.setOwnerID(currentUser.getID());
         userFile.setContentType(file.getContentType());
         userFile.setSize(file.getSize());
-        userFile.setHmacBase64(Base64.getEncoder().encodeToString(hmac));
         userFile.setIvBase64(Base64.getEncoder().encodeToString(IV));
         userFile.getUsersWithAccess().add(currentUser);
         currentUser.getFiles().add(userFile);

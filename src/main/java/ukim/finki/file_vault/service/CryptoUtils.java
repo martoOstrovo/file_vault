@@ -1,35 +1,48 @@
 package ukim.finki.file_vault.service;
 
-import javax.crypto.Cipher;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.MessageDigest;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+@Service
 public class CryptoUtils {
     private final static String AES_ALGO = "AES/GCM/NoPadding";
     private final static int GCM_TAG_LENGTH = 128;
     private final static int IV_LENGTH = 12;
-
     private final SecretKey aesKey;
-    private final SecretKey hmacKey;
 
-    public CryptoUtils(String base64AesKey, String base64HmacKey) {
+    public CryptoUtils(@Value("${AES_MASTER_KEY_BASE64}") String base64AesKey) {
         this.aesKey = new SecretKeySpec(Base64.getDecoder().decode(base64AesKey), "AES");
-        this.hmacKey = new SecretKeySpec(Base64.getDecoder().decode(base64HmacKey), "HmacSHA256");
     }
 
-    public byte[] encrypt(byte[] data, byte[] iv) throws Exception {
+    public byte[] encrypt(byte[] data, byte[] iv) throws NoSuchPaddingException,
+            NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException,
+            InvalidKeyException,
+            IllegalBlockSizeException,
+            BadPaddingException {
+
         Cipher cipher = Cipher.getInstance(AES_ALGO);
         GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
         cipher.init(Cipher.ENCRYPT_MODE, aesKey, parameterSpec);
         return cipher.doFinal(data);
     }
 
-    public byte[] decrypt(byte[] data, byte[] iv) throws Exception {
+    public byte[] decrypt(byte[] data, byte[] iv) throws NoSuchPaddingException,
+            NoSuchAlgorithmException,
+            InvalidAlgorithmParameterException,
+            InvalidKeyException,
+            IllegalBlockSizeException,
+            BadPaddingException {
+
         Cipher cipher = Cipher.getInstance(AES_ALGO);
         GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
         cipher.init(Cipher.DECRYPT_MODE, aesKey, parameterSpec);
@@ -42,14 +55,4 @@ public class CryptoUtils {
         return iv;
     }
 
-    public byte[] calculateHmac (byte[] data) throws Exception {
-        Mac mac =  Mac.getInstance("HmacSHA256");
-        mac.init(hmacKey);
-        return mac.doFinal(data);
-    }
-
-    public boolean verifyMac(byte[] data, byte[] expectedHmac) throws Exception {
-        byte[] calc = calculateHmac(data);
-        return MessageDigest.isEqual(calc, expectedHmac);
-    }
 }

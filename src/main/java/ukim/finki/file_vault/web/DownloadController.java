@@ -32,8 +32,7 @@ public class DownloadController {
     }
 
     @PostMapping
-    public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID)
-            throws Exception {
+    public ResponseEntity<InputStreamResource> processDownload(@RequestParam Long fileID) throws Exception {
 
         UserFile userFile = userFileService.getUserFileById(fileID);
         userService.userHasAccessToFile(userFile);
@@ -62,4 +61,5 @@ public class DownloadController {
         redirectAttributes.addFlashAttribute("error", ex.getMessage());
         return "redirect:/welcome";
     }
+
 }
