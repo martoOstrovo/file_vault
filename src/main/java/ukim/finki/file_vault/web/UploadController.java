@@ -8,8 +8,6 @@ import ukim.finki.file_vault.model.exception.FileNameAlreadyExistsException;
 import ukim.finki.file_vault.model.exception.IllegalFileNameException;
 import ukim.finki.file_vault.model.exception.UserNotFoundInSessionException;
 import ukim.finki.file_vault.service.UserFileService;
-import java.io.IOException;
-
 
 @Controller
 @RequestMapping("/file-upload")

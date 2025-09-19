@@ -11,16 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ukim.finki.file_vault.model.UserFile;
-import ukim.finki.file_vault.model.exception.NoAccessToFileException;
 import ukim.finki.file_vault.model.exception.UserFileNotFoundException;
 import ukim.finki.file_vault.service.UserFileService;
 import ukim.finki.file_vault.service.UserService;
-
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
