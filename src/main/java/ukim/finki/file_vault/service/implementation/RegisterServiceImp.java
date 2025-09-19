@@ -52,8 +52,8 @@ public class RegisterServiceImp implements RegisterService {
 
     private void sendVerificationEmail(User user) {
         VerificationToken verificationToken = verificationService.createVerificationToken(user);
-//        String body = "please visit the following link to activate your account: http://localhost:8080/verify?token=" + verificationToken.getToken();
-//        mailSenderService.sendMail(user.getEmail(), "Account Verification Token", body);
+        String body = "please visit the following link to activate your account: http://localhost:8080/verify?token=" + verificationToken.getToken();
+        mailSenderService.sendMail(user.getEmail(), "Account Verification Token", body);
     }
 
     public void confirmAccount(String token) {
