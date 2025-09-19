@@ -24,6 +24,7 @@ public class UserFile {
     private String fileName;
     private String contentType;
     private String ivBase64;
+    private String wrappedDEKBase64;
 
     @ManyToMany(mappedBy = "files")
     private List<User> usersWithAccess = new ArrayList<>();

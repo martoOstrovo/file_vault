@@ -15,7 +15,6 @@ import ukim.finki.file_vault.repository.UserRepository;
 import ukim.finki.file_vault.service.CryptoUtils;
 import ukim.finki.file_vault.service.SecurityUtils;
 import ukim.finki.file_vault.service.UserFileService;
-
 import javax.crypto.AEADBadTagException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -55,10 +54,11 @@ public class UserFileServiceImp implements UserFileService {
     @Transactional
     public void uploadFile(MultipartFile file, String fileName) throws Exception {
         byte[] IV = cryptoUtils.generateIV();
+        String wrappedDEKBase64 = cryptoUtils.generateWrappedDEKBase64();
         byte[] fileBytes = file.getBytes();
-        byte[] encrypted = cryptoUtils.encrypt(fileBytes, IV);
+        byte[] encrypted = cryptoUtils.encrypt(fileBytes, IV, wrappedDEKBase64);
 
-        saveFileToDatabase(file, fileName, IV);
+        saveFileToDatabase(file, fileName, IV, wrappedDEKBase64);
 
         User currentUser = SecurityUtils.getCurrentUser();
         assert currentUser != null;
@@ -136,12 +136,12 @@ public class UserFileServiceImp implements UserFileService {
         byte[] iv = Base64.getDecoder().decode(userFile.getIvBase64());
         try {
             byte[] mainData = Files.readAllBytes(main);
-            return cryptoUtils.decrypt(mainData, iv);
+            return cryptoUtils.decrypt(mainData, iv, userFile.getWrappedDEKBase64());
         } catch (AEADBadTagException e) {
             try {
                 byte[] backupData = Files.readAllBytes(backup);
                 Files.write(Path.of(userFile.getFilePath()), backupData);
-                return cryptoUtils.decrypt(backupData, iv);
+                return cryptoUtils.decrypt(backupData, iv, userFile.getWrappedDEKBase64());
             } catch (AEADBadTagException e1) {
                 deleteFileByID(userFile.getId());
                 Files.deleteIfExists(main);
@@ -152,7 +152,9 @@ public class UserFileServiceImp implements UserFileService {
 
     }
 
-    private void saveFileToDatabase(MultipartFile file, String fileName, byte[] IV) throws FileNameAlreadyExistsException, IllegalFileNameException {
+    private void saveFileToDatabase(MultipartFile file, String fileName, byte[] IV, String wrappedDEK)
+            throws FileNameAlreadyExistsException, IllegalFileNameException {
+
         checkFileNameAvailability(fileName);
         checkFileNameLegality(fileName);
 
@@ -172,6 +174,8 @@ public class UserFileServiceImp implements UserFileService {
         userFile.setContentType(file.getContentType());
         userFile.setSize(file.getSize());
         userFile.setIvBase64(Base64.getEncoder().encodeToString(IV));
+        userFile.setWrappedDEKBase64(wrappedDEK);
+
         userFile.getUsersWithAccess().add(currentUser);
         currentUser.getFiles().add(userFile);
         userRepository.save(currentUser);
@@ -179,6 +183,8 @@ public class UserFileServiceImp implements UserFileService {
 
     private void checkFileNameLegality(String fileName) {
         Matcher matcher = FILE_PATTERN.matcher(fileName);
+        String ext = fileName.split("\\.")[fileName.split("\\.").length - 1];
+        if (ext.equals("sh") || ext.equals("exe")) throw new IllegalFileNameException(fileName);
         if (!matcher.matches()) throw new IllegalFileNameException(fileName);
     }
 
