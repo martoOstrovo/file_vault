@@ -38,6 +38,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                         .requestMatchers("/home", "/login", "/register", "/error-page" ,"/manage-file" ,"/verify","/", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/2FA/**").hasRole("UNCONFIRMED")
+                        .requestMatchers("/logs").hasRole("ADMIN")
                         .anyRequest().authenticated()
         )
                 .addFilterBefore(twoFactorAuthFilter, UsernamePasswordAuthenticationFilter.class)
