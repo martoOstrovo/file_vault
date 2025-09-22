@@ -1,5 +1,4 @@
 package ukim.finki.file_vault.service;
-import ukim.finki.file_vault.model.Role;
 import ukim.finki.file_vault.model.User;
 import ukim.finki.file_vault.model.UserFile;
 import ukim.finki.file_vault.model.exception.UserNotFoundException;

@@ -46,7 +46,7 @@ public class TwoFactorTokenServiceImp implements TwoFactorTokenService {
         String mail = user.getEmail();
         String subject = "Two Factor Authentication Token";
         String body = "This code will expire in 5 minutes, please do not share it with anybody! \n" + twoFactorToken.getToken();
-        //mailSender.sendMail(mail, subject, body);
+        mailSender.sendMail(mail, subject, body);
     }
 
     @Override
