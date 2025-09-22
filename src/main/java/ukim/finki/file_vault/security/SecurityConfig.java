@@ -36,9 +36,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/home", "/login", "/register", "/error-page" ,"/manage-file" ,"/verify","/", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/home", "/login", "/register", "/error-page" ,"/manage-file","/verify","/", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/2FA/**").hasRole("UNCONFIRMED")
                         .requestMatchers("/logs").hasRole("ADMIN")
+                        .requestMatchers("/users/**").hasRole("MODERATOR")
                         .anyRequest().authenticated()
         )
                 .addFilterBefore(twoFactorAuthFilter, UsernamePasswordAuthenticationFilter.class)

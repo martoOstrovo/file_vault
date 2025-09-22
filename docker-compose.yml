@@ -3,9 +3,9 @@ services:
     image: "postgres"
     container_name: "file_vault_db"
     environment:
-      - POSTGRES_USER=file_vault
-      - POSTGRES_PASSWORD=file_vault123
-      - POSTGRES_DB=file_vault_database
+      - POSTGRES_USER=${DATASOURCE_USERNAME}
+      - POSTGRES_PASSWORD=${DATASOURCE_PASSWORD}
+      - POSTGRES_DB=${DATASOURCE_DATABASE}
     ports:
       - "5432:5432"
     volumes:

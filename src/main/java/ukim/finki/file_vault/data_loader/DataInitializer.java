@@ -23,7 +23,7 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     @Transactional
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         createAndSaveRole("ROLE_USER");
         createAndSaveRole("ROLE_MODERATOR");
         createAndSaveRole("ROLE_ADMIN");
@@ -38,7 +38,7 @@ public class DataInitializer implements CommandLineRunner {
         user.setPassword(passwordEncoder.encode(username));
         user.setEnabled(true);
         user.setName(username);
-        user.setEmail(username);
+        user.setEmail("martingrombanovski@yahoo.com");
         user.setSurname(username);
         user.setUsername(username);
         user.getRoles().add(roleRepository.findByRoleName("ROLE_USER").orElseThrow(() -> new RuntimeException("temp exception for finding role")));
@@ -50,7 +50,7 @@ public class DataInitializer implements CommandLineRunner {
         admin.setPassword(passwordEncoder.encode("admin"));
         admin.setEnabled(true);
         admin.setName("admin");
-        admin.setEmail("temp");
+        admin.setEmail("martingrombanovski@yahoo.com");
         admin.setSurname("admin");
         admin.setUsername("admin");
         admin.getRoles().add(roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow(() -> new RuntimeException("temp exception for finding role")));

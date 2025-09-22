@@ -12,14 +12,16 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
-    @Query("SELECT u FROM User u JOIN FETCH u.verificationToken")
-    List<User> findAllWithVerificationToken();
+    List<User> findByAccountNonLocked(boolean locked);
 
-    @Query("SELECT u FROM User u JOIN FETCH u.verificationToken WHERE u.ID = :ID")
-    Optional<User> findUserWithVerificationTokenByID(@Param("ID") Long ID);
-
-    @Query("SELECT u FROM User u JOIN FETCH u.files")
-    List<User> findAllWithFiles();
+//    @Query("SELECT u FROM User u JOIN FETCH u.verificationToken")
+//    List<User> findAllWithVerificationToken();
+//
+//    @Query("SELECT u FROM User u JOIN FETCH u.verificationToken WHERE u.ID = :ID")
+//    Optional<User> findUserWithVerificationTokenByID(@Param("ID") Long ID);
+//
+//    @Query("SELECT u FROM User u JOIN FETCH u.files")
+//    List<User> findAllWithFiles();
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.files WHERE u.ID = :ID")
     Optional<User> findByIDWithFiles(@Param("ID") Long id);
