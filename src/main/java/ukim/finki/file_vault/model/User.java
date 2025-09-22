@@ -21,6 +21,7 @@ public class User {
     private String username;
     private String password;
     private boolean enabled = false;
+    private boolean accountNonLocked = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+
+<div class="max-w-5xl mx-auto px-4 space-y-10">
+
+    <!-- Users Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-semibold text-gray-900">Users</h1>
+            <p class="text-sm text-gray-600 mt-1">Manage regular user accounts</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="user : ${users}" class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${user.getUsername()}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap space-x-2">
+                        <form th:action="@{/users/process-elevate}" method="post" class="inline">
+                            <input type="hidden" name="userID" th:value="${user.getID()}">
+                            <input type="submit" value="Elevate"
+                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 cursor-pointer">
+                        </form>
+                        <form th:action="@{/users/lock}" method="post" class="inline">
+                            <input type="hidden" name="userID" th:value="${user.getID()}">
+                            <input type="submit" value="Lock"
+                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer">
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Moderators Section -->
+    <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-semibold text-gray-900">Moderators</h1>
+                <p class="text-sm text-gray-600 mt-1">Manage moderator accounts</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="moderator: ${moderators}" class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${moderator.getUsername()}"></td>
+                        <td class="px-6 py-4 whitespace-nowrap space-x-2">
+                            <form th:action="@{/users/process-revoke}" method="post" class="inline">
+                                <input type="hidden" name="userID" th:value="${moderator.getID()}">
+                                <input type="submit" value="Revoke"
+                                       class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 cursor-pointer">
+                            </form>
+                            <form th:action="@{/users/lock}" method="post" class="inline">
+                                <input type="hidden" name="userID" th:value="${moderator.getID()}">
+                                <input type="submit" value="Lock"
+                                       class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 cursor-pointer">
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </th:block>
+
+    <!-- Locked Accounts Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-semibold text-gray-900">Locked Accounts</h1>
+            <p class="text-sm text-gray-600 mt-1">Accounts currently locked</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="locked : ${lockedAccounts}" class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${locked.getUsername()}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <form th:action="@{/users/unlock}" method="post" class="inline">
+                            <input type="hidden" name="userID" th:value="${locked.getID()}">
+                            <input type="submit" value="Unlock"
+                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 cursor-pointer">
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
