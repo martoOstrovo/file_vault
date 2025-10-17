@@ -67,6 +67,40 @@ public class LoggingAspect {
         appendFileAccessRevokedToUserLog(userId, fileId);
     }
 
+    @AfterReturning("execution(* ukim.finki.file_vault.service.UserService.giveMod(..))")
+    public void logGiveMod(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+        Long userID = (Long) args[0];
+        appendLogGiveMod(userID);
+    }
+
+    @AfterReturning("execution(* ukim.finki.file_vault.service.UserService.revokeMod(..))")
+    public void logRevokeMod(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+        Long userID = (Long) args[0];
+        appendLogRevokeMod(userID);
+    }
+
+    private void appendLogRevokeMod(Long userID) {
+        String logLine = String.format("User with ID:%d has lost mod at %s%n", userID,LocalDateTime.now());
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("logs.log", true))) {
+            writer.write(logLine);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void appendLogGiveMod(Long userID) {
+        String logLine = String.format("User with ID:%d has gained mod at %s%n", userID,LocalDateTime.now());
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("logs.log", true))) {
+            writer.write(logLine);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void appendFileAccessRevokedToUserLog(Long userId, Long fileId) {
         String logLine = String.format("User with ID:%d has lost access to file with ID:%d at %s%n", userId, fileId,LocalDateTime.now());
 
